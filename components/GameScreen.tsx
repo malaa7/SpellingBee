@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Difficulty, GridCell, WordConfig, CellPosition } from '../types';
+import { Difficulty, GridCell, WordConfig, CellPosition, Language } from '../types';
 import { getWordsForLevel, generateGrid } from '../services/gameLogic';
 import { playCorrectSound, playErrorSound, playWinSound } from '../services/soundService';
 import { WORDS_PER_GAME, SCORES } from '../constants';
@@ -10,9 +10,11 @@ interface Props {
   playerName: string;
   onEndGame: (score: number, timeElapsed: number) => void;
   onExit: () => void;
+  language: Language;
+  t: any;
 }
 
-const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit }) => {
+const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit, language, t }) => {
   const [grid, setGrid] = useState<GridCell[][]>([]);
   const [words, setWords] = useState<WordConfig[]>([]);
   const [score, setScore] = useState(0);
@@ -273,6 +275,8 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
   const maxMistakes = words.length;
   const attemptsLeft = maxMistakes - mistakes;
 
+  const difficultyLabel = difficulty === 'easy' ? t.diffEasy : difficulty === 'medium' ? t.diffMedium : t.diffHard;
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row h-screen overflow-hidden" onMouseUp={onMouseUp}>
       
@@ -280,8 +284,8 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
       <div className="w-full md:w-80 bg-white shadow-lg z-10 flex flex-col p-4 md:h-full overflow-y-auto shrink-0">
         <div className="mb-6 flex justify-between items-center md:block">
           <div>
-            <h2 className="text-xl font-bold text-blue-800">أهلاً, {playerName}</h2>
-            <p className="text-sm text-gray-500">المستوى: {difficulty === 'easy' ? 'سهل' : difficulty === 'medium' ? 'متوسط' : 'صعب'}</p>
+            <h2 className="text-xl font-bold text-blue-800">{t.welcome}, {playerName}</h2>
+            <p className="text-sm text-gray-500">{t.level}: {difficultyLabel}</p>
           </div>
           <div className="bg-blue-100 px-4 py-2 rounded-lg text-blue-800 font-bold flex items-center gap-2">
             <Clock size={18} />
@@ -291,19 +295,19 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
 
         <div className="grid grid-cols-2 gap-2 mb-4">
            <div className="bg-green-50 p-3 rounded-xl border border-green-200 flex flex-col items-center justify-center">
-              <span className="text-xs text-green-800 font-bold mb-1">النقاط</span>
+              <span className="text-xs text-green-800 font-bold mb-1">{t.score}</span>
               <span className="text-2xl font-black text-green-600">{score}</span>
           </div>
            <div className="bg-red-50 p-3 rounded-xl border border-red-200 flex flex-col items-center justify-center">
               <span className="text-xs text-red-800 font-bold mb-1 flex items-center gap-1">
                 <Heart size={14} className="fill-red-500 text-red-500" />
-                المحاولات
+                {t.attempts}
               </span>
               <span className="text-2xl font-black text-red-600">{Math.max(0, attemptsLeft)}</span>
           </div>
         </div>
 
-        <h3 className="font-bold text-gray-700 mb-3 border-b pb-2">الكلمات المطلوبة ({words.filter(w => w.found).length}/{WORDS_PER_GAME})</h3>
+        <h3 className="font-bold text-gray-700 mb-3 border-b pb-2">{t.requiredWords} ({words.filter(w => w.found).length}/{WORDS_PER_GAME})</h3>
         <div className="grid grid-cols-3 md:grid-cols-2 gap-2 overflow-y-auto flex-1 content-start mb-4 max-h-[150px] md:max-h-none">
             {words.map((w, idx) => (
                 <div 
@@ -326,7 +330,7 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
             className="w-full bg-green-100 hover:bg-green-200 text-green-900 font-bold py-2 px-3 rounded-lg text-sm flex items-center justify-center gap-2 transition-colors border border-green-200 shadow-sm"
           >
             <CheckCircle size={18} />
-            انتهيت (حفظ النتيجة)
+            {t.finishedBtn}
           </button>
           
           <div className="flex gap-2">
@@ -335,14 +339,14 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
               className="flex-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 font-bold py-2 px-3 rounded-lg text-sm flex items-center justify-center gap-1 transition-colors"
             >
               <Shuffle size={16} />
-              تغيير الكلمات
+              {t.changeWordsBtn}
             </button>
             <button 
               onClick={onExit}
               className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-lg text-sm flex items-center justify-center gap-1 transition-colors"
             >
               <Home size={16} />
-              لعبة جديدة
+              {t.newGameBtn}
             </button>
           </div>
         </div>
@@ -408,9 +412,6 @@ const GameScreen: React.FC<Props> = ({ difficulty, playerName, onEndGame, onExit
           </div>
         </div>
         
-        <div className="absolute bottom-4 left-4 text-gray-400 text-xs hidden md:block">
-            قطاع المعاهد الأزهرية
-        </div>
       </div>
     </div>
   );

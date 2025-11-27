@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Player } from '../types';
-import { Trophy, RefreshCcw, Star, Frown, ThumbsUp, Medal } from 'lucide-react';
+import { Player, Language } from '../types';
+import { Trophy, RefreshCcw, Star, ThumbsUp, Medal } from 'lucide-react';
 import { WORDS_PER_GAME, SCORES } from '../constants';
 
 interface Props {
   currentPlayer: Player;
   onRestart: () => void;
+  language: Language;
+  t: any;
 }
 
-const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
+const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart, language, t }) => {
   const [leaderboard, setLeaderboard] = useState<Player[]>([]);
 
   useEffect(() => {
@@ -53,32 +55,32 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
 
   if (percentage === 100) {
     resultConfig = {
-      title: 'ممتاز يا بطل!',
-      subtitle: 'لقد أكملت جميع الكلمات بنجاح دون أخطاء!',
+      title: t.resultPerfectTitle,
+      subtitle: t.resultPerfectDesc,
       color: 'bg-green-500',
       bgIcon: 'bg-green-100',
       icon: <Trophy size={64} className="text-green-600" />
     };
   } else if (percentage >= 80) {
     resultConfig = {
-      title: 'عمل رائع!',
-      subtitle: 'أنت قريب جداً من القمة، استمر!',
+      title: t.resultGreatTitle,
+      subtitle: t.resultGreatDesc,
       color: 'bg-blue-500',
       bgIcon: 'bg-blue-100',
       icon: <Medal size={64} className="text-blue-600" />
     };
   } else if (percentage >= 50) {
     resultConfig = {
-      title: 'جيد جداً!',
-      subtitle: 'حاول مرة أخرى لتحقيق نتيجة أفضل.',
+      title: t.resultGoodTitle,
+      subtitle: t.resultGoodDesc,
       color: 'bg-yellow-500',
       bgIcon: 'bg-yellow-100',
       icon: <ThumbsUp size={64} className="text-yellow-600" />
     };
   } else {
     resultConfig = {
-      title: 'بداية جيدة!',
-      subtitle: 'لا تيأس، التدريب يصنع المعجزات.',
+      title: t.resultStartTitle,
+      subtitle: t.resultStartDesc,
       color: 'bg-orange-500',
       bgIcon: 'bg-orange-100',
       icon: <Star size={64} className="text-orange-600" />
@@ -99,12 +101,12 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
           
           <div className="flex justify-center gap-8 mb-6">
             <div className="text-center p-3 bg-blue-50 rounded-xl min-w-[100px]">
-              <span className="block text-sm text-gray-500 mb-1">النتيجة</span>
+              <span className="block text-sm text-gray-500 mb-1">{t.score}</span>
               <span className="block text-3xl font-bold text-blue-600">{currentPlayer.score}</span>
-              <span className="text-xs text-gray-400">من {maxScore}</span>
+              <span className="text-xs text-gray-400">{t.from} {maxScore}</span>
             </div>
              <div className="text-center p-3 bg-blue-50 rounded-xl min-w-[100px]">
-              <span className="block text-sm text-gray-500 mb-1">الوقت</span>
+              <span className="block text-sm text-gray-500 mb-1">{t.time}</span>
               <span className="block text-3xl font-bold text-blue-600">{formatTime(currentPlayer.time)}</span>
             </div>
           </div>
@@ -114,7 +116,7 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
             className="px-8 py-3 bg-blue-600 text-white rounded-full font-bold shadow-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 mx-auto transform hover:scale-105"
           >
             <RefreshCcw size={20} />
-            لعبة جديدة
+            {t.newGameBtn}
           </button>
         </div>
 
@@ -122,7 +124,7 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-4">
             <Trophy size={24} className="text-yellow-500" />
-            لوحة الشرف (أفضل النتائج)
+            {t.leaderboard}
           </h2>
           
           <div className="space-y-3">
@@ -152,16 +154,16 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
                         player.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-red-100 text-red-700'
                       }`}>
-                        {player.difficulty === 'easy' ? 'سهل' : player.difficulty === 'medium' ? 'متوسط' : 'صعب'}
+                        {player.difficulty === 'easy' ? t.diffEasy : player.difficulty === 'medium' ? t.diffMedium : t.diffHard}
                       </span>
                       <span>•</span>
-                      <span>{new Date(player.date).toLocaleDateString('ar-EG')}</span>
+                      <span>{new Date(player.date).toLocaleDateString(t.dateLocale)}</span>
                     </p>
                   </div>
                 </div>
                 
                 <div className="text-left">
-                  <div className="font-bold text-green-600">{player.score} نقطة</div>
+                  <div className="font-bold text-green-600">{player.score} {language === 'ar' ? 'نقطة' : 'pts'}</div>
                   <div className="text-xs text-gray-400 font-mono">{formatTime(player.time)}</div>
                 </div>
               </div>
@@ -170,8 +172,7 @@ const EndScreen: React.FC<Props> = ({ currentPlayer, onRestart }) => {
         </div>
 
         <div className="mt-8 text-center text-gray-500 text-xs">
-            <p className="font-bold mb-1">مصمم اللعبة بالذكاء الاصطناعي : محمد علاء</p>
-            <p>والد أحد طلاب معهد عبد الحليم محمود</p>
+            <p className="font-bold">{t.designer}</p>
         </div>
 
       </div>

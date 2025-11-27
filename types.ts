@@ -1,4 +1,5 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
+export type Language = 'ar' | 'en';
 
 export interface Player {
   name: string;
