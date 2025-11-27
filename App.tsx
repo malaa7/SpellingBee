@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StartScreen from './components/StartScreen';
 import GameScreen from './components/GameScreen';
 import EndScreen from './components/EndScreen';
@@ -41,6 +41,53 @@ const App: React.FC = () => {
 
   const t = TRANSLATIONS[language];
   const dir = language === 'ar' ? 'rtl' : 'ltr';
+
+  // --- SEO & Document Head Management ---
+  useEffect(() => {
+    // Dynamic Title
+    document.title = `${t.appTitle} - ${t.appSubtitle}`;
+    
+    // Dynamic Lang Attribute
+    document.documentElement.lang = language;
+    document.documentElement.dir = dir;
+
+    // Dynamic Meta Description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', t.metaDescription);
+    }
+
+    // JSON-LD Structured Data (Game/SoftwareApplication)
+    const schemaData = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Spelling Bee Game",
+      "applicationCategory": "EducationalGame",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": t.metaDescription,
+      "inLanguage": language,
+      "author": {
+        "@type": "Person",
+        "name": "Mohamed Alaa"
+      }
+    };
+
+    // Inject Schema
+    let scriptTag = document.getElementById('json-ld-schema') as HTMLScriptElement | null;
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = 'json-ld-schema';
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
+    }
+    scriptTag.textContent = JSON.stringify(schemaData);
+
+  }, [language, t, dir]);
 
   return (
     <div className="antialiased font-sans" dir={dir}>
